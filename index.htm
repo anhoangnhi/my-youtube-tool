@@ -2,87 +2,218 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>YT Pro Tool - Github Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Ultimate Tool | By Gemini</title>
     <style>
-        body { background: #0f0f0f; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
-        .app-card { width: 100%; max-width: 800px; background: #1a1a1a; border-radius: 16px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #222; color: #fff; outline: none; }
-        button { padding: 12px 24px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: #ff0000; color: white; }
-        #player-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; margin-top: 20px; }
-        .controls { margin-top: 20px; background: #252525; padding: 15px; border-radius: 10px; display: none; }
-        select { padding: 10px; background: #333; color: #fff; border-radius: 5px; border: none; margin-left: 10px; }
-        #thumb-res img { width: 100%; border-radius: 10px; margin-top: 20px; display: none; }
+        :root {
+            --primary: #ff0000;
+            --bg: #0f0f0f;
+            --card: #1a1a1a;
+            --text: #ffffff;
+        }
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container { 
+            width: 100%; 
+            max-width: 850px; 
+            background: var(--card); 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7); 
+        }
+        h1 { color: var(--primary); text-align: center; margin-bottom: 25px; font-size: 28px; }
+        
+        .input-box { display: flex; gap: 10px; margin-bottom: 25px; }
+        input { 
+            flex: 1; 
+            padding: 15px; 
+            border-radius: 10px; 
+            border: 1px solid #333; 
+            background: #252525; 
+            color: #fff; 
+            font-size: 16px;
+            outline: none;
+        }
+        input:focus { border-color: var(--primary); }
+        button { 
+            padding: 0 25px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { background: #cc0000; transform: scale(1.05); }
+
+        #player-wrapper { 
+            width: 100%; 
+            aspect-ratio: 16/9; 
+            background: #000; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .tools-area { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+        }
+        @media (max-width: 600px) { .tools-area { grid-template-columns: 1fr; } }
+
+        .panel { background: #252525; padding: 20px; border-radius: 12px; }
+        label { display: block; margin-bottom: 10px; font-weight: bold; color: #aaa; }
+        
+        select { 
+            width: 100%; 
+            padding: 12px; 
+            background: #333; 
+            color: #fff; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer;
+        }
+
+        #thumb-display { text-align: center; }
+        #thumb-img { width: 100%; border-radius: 8px; display: none; margin-top: 10px; }
+        .dl-link { 
+            display: none; 
+            margin-top: 10px; 
+            color: #3ea6ff; 
+            text-decoration: none; 
+            font-size: 14px; 
+        }
+        .dl-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
-<div class="app-card">
-    <h2>YouTube Pro Tool</h2>
-    <div class="input-group">
-        <input type="text" id="url-input" placeholder="Dán link YouTube vào đây...">
-        <button onclick="startTool()">CHẠY</button>
+<div class="container">
+    <h1>YouTube Ultimate Tool</h1>
+    
+    <div class="input-box">
+        <input type="text" id="video-url" placeholder="Dán link video YouTube vào đây...">
+        <button onclick="processVideo()">CHẠY</button>
     </div>
 
-    <div id="player-container">
+    <div id="player-wrapper">
         <div id="player"></div>
     </div>
 
-    <div class="controls" id="controls">
-        <label>Tốc độ phát:</label>
-        <select id="speed-select" onchange="updateSpeed()">
-            <option value="0.5">0.5x</option>
-            <option value="1" selected>1.0x</option>
-            <option value="2">2.0x</option>
-            <option value="4">4.0x</option>
-            <option value="8">8.0x</option>
-            <option value="16">16.0x 🔥</option>
-        </select>
-        <div id="thumb-res">
-            <p>Thumbnail (HD):</p>
-            <img id="thumb-img" src="" alt="Thumbnail">
+    <div class="tools-area">
+        <div class="panel">
+            <label>⚡ Tốc độ phát (Speed Hack)</label>
+            <select id="speed-picker" onchange="applySpeed()">
+                <option value="0.25">0.25x</option>
+                <option value="0.5">0.5x</option>
+                <option value="1" selected>1.0x (Bình thường)</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2.0x</option>
+                <option value="3">3.0x</option>
+                <option value="4">4.0x</option>
+                <option value="8">8.0x</option>
+                <option value="16">16.0x 🔥 (Bàn thờ)</option>
+            </select>
+            <p style="font-size: 11px; color: #777; margin-top: 10px;">*Tốc độ trên 2x yêu cầu trình duyệt hỗ trợ API.</p>
+        </div>
+
+        <div class="panel" id="thumb-display">
+            <label>🖼️ Ảnh Thumbnail HD</label>
+            <img id="thumb-img" src="" alt="Thumbnail Preview">
+            <p id="thumb-placeholder" style="color: #555; margin-top: 20px;">Ảnh sẽ hiện tại đây</p>
+            <a id="download-btn" href="#" target="_blank" class="dl-link">Mở ảnh chất lượng gốc</a>
         </div>
     </div>
 </div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
+
 <script>
     let player;
-    function startTool() {
-        const url = document.getElementById('url-input').value;
-        const id = url.match(/(?:youtu\.be\/|youtube\.com.*v=)([a-zA-Z0-9_-]{11})/)[1];
-        
-        if (!id) return alert("Link sai bro ơi!");
 
-        // Khởi tạo Player
+    function onYouTubeIframeAPIReady() {
+        console.log("YouTube API Ready");
+    }
+
+    function extractVideoID(url) {
+        const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length == 11) ? match[2] : null;
+    }
+
+    function processVideo() {
+        const urlInput = document.getElementById('video-url').value.trim();
+        const videoId = extractVideoID(urlInput);
+
+        if (!videoId) {
+            alert("Link này có vẻ không đúng rồi bro ơi!");
+            return;
+        }
+
+        // 1. Xử lý Trình phát (Sửa lỗi 153)
         if (player) {
-            player.loadVideoById(id);
+            player.loadVideoById(videoId);
         } else {
             player = new YT.Player('player', {
                 height: '100%',
                 width: '100%',
-                videoId: id,
-                playerVars: { 
-                    'origin': location.origin,
-                    'enablejsapi': 1 
+                videoId: videoId,
+                playerVars: {
+                    'origin': window.location.origin,
+                    'enablejsapi': 1,
+                    'rel': 0
                 }
             });
         }
 
-        // Hiện Controls & Thumbnail
-        document.getElementById('controls').style.display = 'block';
-        const img = document.getElementById('thumb-img');
-        img.src = `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
-        img.style.display = 'block';
-        img.onerror = function() { this.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`; };
+        // 2. Xử lý Thumbnail
+        const thumbImg = document.getElementById('thumb-img');
+        const thumbPlace = document.getElementById('thumb-placeholder');
+        const dlBtn = document.getElementById('download-btn');
+        
+        // Sử dụng i.ytimg.com để bypass một số chặn ảnh
+        const maxRes = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+        const hqRes = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+
+        thumbImg.src = maxRes;
+        dlBtn.href = maxRes;
+
+        thumbImg.onload = function() {
+            thumbImg.style.display = 'block';
+            thumbPlace.style.display = 'none';
+            dlBtn.style.display = 'inline-block';
+        };
+
+        // Fallback nếu không có ảnh HD
+        thumbImg.onerror = function() {
+            if (this.src !== hqRes) {
+                this.src = hqRes;
+                dlBtn.href = hqRes;
+            }
+        };
+        
+        // Reset tốc độ về 1x khi load video mới
+        document.getElementById('speed-picker').value = "1";
     }
 
-    function updateSpeed() {
-        const speed = document.getElementById('speed-select').value;
+    function applySpeed() {
+        const speed = document.getElementById('speed-picker').value;
         if (player && player.setPlaybackRate) {
             player.setPlaybackRate(parseFloat(speed));
+            console.log("Đã chỉnh tốc độ sang: " + speed);
         }
     }
 </script>
+
 </body>
 </html>
