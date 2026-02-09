@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Music Pro - Auto Play</title>
+    <title>YouTube Music Pro - Pause Control</title>
     <style>
         :root { --primary: #ff4444; --bg: #0b0b0b; --card: #161616; --text: #eee; --accent: #1db954; }
         body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 20px; }
@@ -18,13 +18,15 @@
             width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; 
             overflow: hidden; margin-bottom: 20px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .music-mode-active { height: 80px !important; border: 2px solid var(--accent) !important; box-shadow: 0 0 15px var(--accent); }
+        .music-mode-active { height: 0px !important; border: 2px solid var(--accent) !important; box-shadow: 0 0 15px var(--accent); }
 
         .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .panel { background: #222; padding: 15px; border-radius: 12px; }
         .flex-row { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
         
-        /* Switch Styling */
+        .btn-action { background: #333; color: white; border: 1px solid #444; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-size: 12px; transition: 0.3s; }
+        .btn-action:hover { background: var(--accent); border-color: var(--accent); }
+
         .switch { position: relative; display: inline-block; width: 45px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 22px; }
@@ -57,6 +59,10 @@
                 </select>
             </div>
             <div class="flex-row">
+                <span>Trình điều khiển:</span>
+                <button id="pp-btn" class="btn-action" onclick="togglePlayPause()">PAUSE</button>
+            </div>
+            <div class="flex-row">
                 <span>Chỉ nghe nhạc (Auto Play):</span>
                 <label class="switch">
                     <input type="checkbox" id="m-toggle" onchange="handleMusicMode()">
@@ -64,7 +70,7 @@
                 </label>
             </div>
             <div class="flex-row">
-                <span>Tự động phát lại (Loop):</span>
+                <span>Tự động lặp lại (Loop):</span>
                 <label class="switch">
                     <input type="checkbox" id="l-toggle">
                     <span class="slider"></span>
@@ -101,8 +107,28 @@
     }
 
     function onPlayerStateChange(event) {
-        // Xử lý Loop: Nếu video kết thúc (state = 0) và nút Loop đang bật
+        const btn = document.getElementById('pp-btn');
+        // Update nút dựa trên trạng thái (1: đang chơi, 2: đang tạm dừng)
+        if (event.data === YT.PlayerState.PLAYING) {
+            btn.innerText = "PAUSE";
+            btn.style.color = "white";
+        } else if (event.data === YT.PlayerState.PAUSED) {
+            btn.innerText = "PLAY";
+            btn.style.color = "var(--accent)";
+        }
+
+        // Loop logic
         if (event.data === YT.PlayerState.ENDED && document.getElementById('l-toggle').checked) {
+            player.playVideo();
+        }
+    }
+
+    function togglePlayPause() {
+        if (!player) return;
+        const state = player.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) {
+            player.pauseVideo();
+        } else {
             player.playVideo();
         }
     }
@@ -110,13 +136,9 @@
     function handleMusicMode() {
         const isMusic = document.getElementById('m-toggle').checked;
         const wrapper = document.getElementById('player-wrapper');
-        
         if (isMusic) {
             wrapper.classList.add('music-mode-active');
-            // Tự động Play khi gạt công tắc
-            if (player && player.playVideo) {
-                player.playVideo();
-            }
+            if (player && player.playVideo) player.playVideo();
         } else {
             wrapper.classList.remove('music-mode-active');
         }
