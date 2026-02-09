@@ -3,51 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Ultimate Tool | Fix Thumbnail</title>
+    <title>YouTube Ultimate Tool | Music Mode</title>
     <style>
-        :root { --primary: #ff0000; --bg: #0f0f0f; --card: #1a1a1a; --text: #ffffff; }
-        body { background-color: var(--bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
+        :root { --primary: #ff0000; --bg: #0f0f0f; --card: #1a1a1a; --text: #ffffff; --accent: #00ff00; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 20px; }
         .container { width: 100%; max-width: 850px; background: var(--card); padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.7); }
-        h1 { color: var(--primary); text-align: center; }
+        h1 { color: var(--primary); text-align: center; margin-bottom: 25px; }
+        
         .input-box { display: flex; gap: 10px; margin-bottom: 25px; }
         input { flex: 1; padding: 15px; border-radius: 10px; border: 1px solid #333; background: #252525; color: #fff; outline: none; }
-        button { padding: 0 25px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        #player-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 15px; overflow: hidden; margin-bottom: 25px; }
+        button { padding: 0 25px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { opacity: 0.8; }
+
+        /* Video Area */
+        #player-wrapper { 
+            width: 100%; 
+            aspect-ratio: 16/9; 
+            background: #000; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            margin-bottom: 25px;
+            transition: all 0.5s ease;
+        }
+        /* Music Mode Class */
+        .music-only-mode {
+            aspect-ratio: auto !important;
+            height: 80px !important;
+            border: 2px solid var(--accent) !important;
+        }
+
         .tools-area { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .panel { background: #252525; padding: 20px; border-radius: 12px; text-align: center; }
+        label { display: block; margin-bottom: 10px; font-weight: bold; color: #aaa; }
         select { width: 100%; padding: 12px; background: #333; color: #fff; border: none; border-radius: 8px; }
-        #thumb-img { width: 100%; border-radius: 8px; display: none; margin-top: 10px; cursor: pointer; }
-        .btn-link { display: none; margin-top: 15px; color: #3ea6ff; text-decoration: none; font-weight: bold; }
+
+        /* Switch UI */
+        .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        #thumb-img { width: 100%; border-radius: 8px; display: none; margin-top: 10px; }
+        .btn-link { display: none; margin-top: 10px; color: #3ea6ff; text-decoration: none; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>YouTube Ultimate Tool</h1>
+    
     <div class="input-box">
         <input type="text" id="video-url" placeholder="Dán link video YouTube vào đây...">
         <button onclick="processVideo()">CHẠY</button>
     </div>
 
-    <div id="player-wrapper"><div id="player"></div></div>
+    <div id="player-wrapper">
+        <div id="player"></div>
+    </div>
 
     <div class="tools-area">
         <div class="panel">
-            <label>⚡ Tốc độ phát</label>
-            <select id="speed-picker" onchange="applySpeed()">
+            <label>⚡ Tốc độ & Chế độ</label>
+            <select id="speed-picker" onchange="applySpeed()" style="margin-bottom: 15px;">
                 <option value="1" selected>1.0x (Normal)</option>
                 <option value="2">2.0x</option>
                 <option value="4">4.0x</option>
-                <option value="8">8.0x</option>
                 <option value="16">16.0x 🔥</option>
             </select>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span style="font-size: 14px;">Chỉ nghe nhạc:</span>
+                <label class="switch">
+                    <input type="checkbox" id="music-toggle" onchange="toggleMusicMode()">
+                    <span class="slider"></span>
+                </label>
+            </div>
         </div>
 
         <div class="panel">
-            <label>🖼️ Thumbnail</label>
+            <label>🖼️ Thumbnail Preview</label>
             <img id="thumb-img" src="" alt="Thumbnail">
-            <p id="thumb-msg">Nhập link để lấy ảnh</p>
-            <a id="download-btn" href="#" target="_blank" class="btn-link">Mở ảnh chất lượng cao nhất</a>
+            <p id="thumb-msg" style="color: #555;">Chưa có ảnh</p>
+            <a id="download-btn" href="#" target="_blank" class="btn-link">Mở ảnh HD</a>
         </div>
     </div>
 </div>
@@ -55,51 +94,53 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
     let player;
+
     function processVideo() {
         const url = document.getElementById('video-url').value;
         const id = url.match(/(?:youtu\.be\/|youtube\.com.*v=)([a-zA-Z0-9_-]{11})/)?.[1];
         if (!id) return alert("Link sai rồi bro!");
 
-        // 1. Player
-        if (player) { player.loadVideoById(id); } 
-        else { player = new YT.Player('player', { height: '100%', width: '100%', videoId: id, playerVars: { 'origin': location.origin } }); }
+        if (player) {
+            player.loadVideoById(id);
+        } else {
+            player = new YT.Player('player', {
+                height: '100%', width: '100%', videoId: id,
+                playerVars: { 'origin': location.origin, 'enablejsapi': 1 }
+            });
+        }
 
-        // 2. Thumbnail Logic (Fix lỗi của ông)
+        // Xử lý Thumbnail
         const img = document.getElementById('thumb-img');
         const btn = document.getElementById('download-btn');
         const msg = document.getElementById('thumb-msg');
-        
         const maxRes = `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
         const hqRes = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 
-        // Thử load ảnh HD
         img.src = maxRes;
-        
         img.onload = function() {
-            // Kiểm tra xem YouTube có trả về ảnh "ảnh không tồn tại" (rộng 120px) không
-            if (this.naturalWidth === 120) {
-                this.src = hqRes;
-                btn.href = hqRes;
-            } else {
-                btn.href = maxRes;
-            }
-            img.style.display = 'block';
-            btn.style.display = 'inline-block';
-            msg.style.display = 'none';
+            if (this.naturalWidth <= 120) { this.src = hqRes; btn.href = hqRes; } 
+            else { btn.href = maxRes; }
+            img.style.display = 'block'; btn.style.display = 'inline-block'; msg.style.display = 'none';
         };
-
         img.onerror = function() {
-            this.src = hqRes;
-            btn.href = hqRes;
-            img.style.display = 'block';
-            btn.style.display = 'inline-block';
-            msg.style.display = 'none';
+            this.src = hqRes; btn.href = hqRes;
+            img.style.display = 'block'; btn.style.display = 'inline-block'; msg.style.display = 'none';
         };
     }
 
     function applySpeed() {
         const s = document.getElementById('speed-picker').value;
         if (player && player.setPlaybackRate) player.setPlaybackRate(parseFloat(s));
+    }
+
+    function toggleMusicMode() {
+        const isMusic = document.getElementById('music-toggle').checked;
+        const wrapper = document.getElementById('player-wrapper');
+        if (isMusic) {
+            wrapper.classList.add('music-only-mode');
+        } else {
+            wrapper.classList.remove('music-only-mode');
+        }
     }
 </script>
 </body>
