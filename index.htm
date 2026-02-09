@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YT Bypass 153</title>
+    <style>
+        body { background: #111; color: white; text-align: center; font-family: sans-serif; }
+        iframe { width: 80%; aspect-ratio: 16/9; border-radius: 10px; border: 2px solid #333; }
+        input { padding: 10px; width: 300px; border-radius: 5px; border: none; }
+        button { padding: 10px 20px; background: red; color: white; border: none; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h2>YouTube Fix Error 153</h2>
+    <input type="text" id="url" placeholder="Dán link vào đây...">
+    <button onclick="playVideo()">PHÁT</button>
+    <br><br>
+    <div id="player-anchor"></div>
+
+    <script>
+        function playVideo() {
+            const val = document.getElementById('url').value;
+            const id = val.match(/(?:youtu\.be\/|youtube\.com.*v=)([a-zA-Z0-9_-]{11})/)[1];
+            // Dùng link embed trực tiếp để né lỗi cấu hình
+            document.getElementById('player-anchor').innerHTML = 
+                `<iframe src="https://www.youtube.com/embed/${id}?rel=0&autoplay=1" allowfullscreen allow="autoplay"></iframe>`;
+        }
+    </script>
+</body>
+</html>
