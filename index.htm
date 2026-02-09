@@ -1,29 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-    <title>YT Bypass 153</title>
+    <meta charset="UTF-8">
+    <title>YT Pro Tool - Github Edition</title>
     <style>
-        body { background: #111; color: white; text-align: center; font-family: sans-serif; }
-        iframe { width: 80%; aspect-ratio: 16/9; border-radius: 10px; border: 2px solid #333; }
-        input { padding: 10px; width: 300px; border-radius: 5px; border: none; }
-        button { padding: 10px 20px; background: red; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        body { background: #0f0f0f; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .app-card { width: 100%; max-width: 800px; background: #1a1a1a; border-radius: 16px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: center; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #222; color: #fff; outline: none; }
+        button { padding: 12px 24px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: #ff0000; color: white; }
+        #player-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; margin-top: 20px; }
+        .controls { margin-top: 20px; background: #252525; padding: 15px; border-radius: 10px; display: none; }
+        select { padding: 10px; background: #333; color: #fff; border-radius: 5px; border: none; margin-left: 10px; }
+        #thumb-res img { width: 100%; border-radius: 10px; margin-top: 20px; display: none; }
     </style>
 </head>
 <body>
-    <h2>YouTube Fix Error 153</h2>
-    <input type="text" id="url" placeholder="Dán link vào đây...">
-    <button onclick="playVideo()">PHÁT</button>
-    <br><br>
-    <div id="player-anchor"></div>
 
-    <script>
-        function playVideo() {
-            const val = document.getElementById('url').value;
-            const id = val.match(/(?:youtu\.be\/|youtube\.com.*v=)([a-zA-Z0-9_-]{11})/)[1];
-            // Dùng link embed trực tiếp để né lỗi cấu hình
-            document.getElementById('player-anchor').innerHTML = 
-                `<iframe src="https://www.youtube.com/embed/${id}?rel=0&autoplay=1" allowfullscreen allow="autoplay"></iframe>`;
+<div class="app-card">
+    <h2>YouTube Pro Tool</h2>
+    <div class="input-group">
+        <input type="text" id="url-input" placeholder="Dán link YouTube vào đây...">
+        <button onclick="startTool()">CHẠY</button>
+    </div>
+
+    <div id="player-container">
+        <div id="player"></div>
+    </div>
+
+    <div class="controls" id="controls">
+        <label>Tốc độ phát:</label>
+        <select id="speed-select" onchange="updateSpeed()">
+            <option value="0.5">0.5x</option>
+            <option value="1" selected>1.0x</option>
+            <option value="2">2.0x</option>
+            <option value="4">4.0x</option>
+            <option value="8">8.0x</option>
+            <option value="16">16.0x 🔥</option>
+        </select>
+        <div id="thumb-res">
+            <p>Thumbnail (HD):</p>
+            <img id="thumb-img" src="" alt="Thumbnail">
+        </div>
+    </div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+    let player;
+    function startTool() {
+        const url = document.getElementById('url-input').value;
+        const id = url.match(/(?:youtu\.be\/|youtube\.com.*v=)([a-zA-Z0-9_-]{11})/)[1];
+        
+        if (!id) return alert("Link sai bro ơi!");
+
+        // Khởi tạo Player
+        if (player) {
+            player.loadVideoById(id);
+        } else {
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: id,
+                playerVars: { 
+                    'origin': location.origin,
+                    'enablejsapi': 1 
+                }
+            });
         }
-    </script>
+
+        // Hiện Controls & Thumbnail
+        document.getElementById('controls').style.display = 'block';
+        const img = document.getElementById('thumb-img');
+        img.src = `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
+        img.style.display = 'block';
+        img.onerror = function() { this.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`; };
+    }
+
+    function updateSpeed() {
+        const speed = document.getElementById('speed-select').value;
+        if (player && player.setPlaybackRate) {
+            player.setPlaybackRate(parseFloat(speed));
+        }
+    }
+</script>
 </body>
 </html>
