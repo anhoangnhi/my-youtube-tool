@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hc pro</title>
+    <title>YouTube Music Pro</title>
     <style>
         :root { --primary: #ff4444; --bg: #0b0b0b; --card: #161616; --text: #eee; --accent: #1db954; }
         body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 20px; }
@@ -44,12 +44,11 @@
     <h1>YouTube Music Pro</h1>
     
     <div class="input-box">
-       <input 
-  type="text" 
-  id="v-url" 
-  value="https://www.youtube.com/watch?v=CehgIeTdQos"
-  placeholder="https://www.youtube.com/watch?v=CehgIeTdQos">
-
+        <input 
+            type="text" 
+            id="v-url" 
+            value="https://www.youtube.com/watch?v=CehgIeTdQos" 
+            placeholder="https://www.youtube.com/watch?v=CehgIeTdQos">
         <button id="main-run" onclick="initVideo()">CHẠY</button>
     </div>
 
@@ -60,7 +59,10 @@
             <div class="flex-row">
                 <span>Tốc độ:</span>
                 <select id="v-speed" onchange="setVp()">
-                    <option value="1">1.0x</option><option value="2">2.0x</option><option value="4">4.0x</option><option value="16">16x</option>
+                    <option value="1">1.0x</option>
+                    <option value="2">2.0x</option>
+                    <option value="4">4.0x</option>
+                    <option value="16">16x</option>
                 </select>
             </div>
             <div class="flex-row">
@@ -68,7 +70,7 @@
                 <button id="pp-btn" class="btn-action" onclick="togglePlayPause()">PAUSE</button>
             </div>
             <div class="flex-row">
-                <span>Chỉ nghe nhạc (Auto Play):</span>
+                <span>Chỉ nghe nhạc (Ẩn Video):</span>
                 <label class="switch">
                     <input type="checkbox" id="m-toggle" onchange="handleMusicMode()">
                     <span class="slider"></span>
@@ -82,26 +84,43 @@
                 </label>
             </div>
         </div>
-
-        
     </div>
+    <img id="thumb-img" alt="Thumbnail">
 </div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
     let player;
+
+    // Tự động load video khi trang web sẵn sàng
+    function onYouTubeIframeAPIReady() {
+        const initialUrl = document.getElementById('v-url').value;
+        if(initialUrl) {
+            initVideo();
+        }
+    }
+
     function initVideo() {
         const url = document.getElementById('v-url').value;
         const id = url.match(/(?:youtu\.be\/|youtube\.com.*v=)([a-zA-Z0-9_-]{11})/)?.[1];
+        
         if(!id) return alert("Link lỗi bro!");
 
         if(player) {
             player.loadVideoById(id);
         } else {
             player = new YT.Player('player', {
-                height: '100%', width: '100%', videoId: id,
-                playerVars: {'origin': location.origin, 'enablejsapi': 1},
-                events: { 'onStateChange': onPlayerStateChange }
+                height: '100%', 
+                width: '100%', 
+                videoId: id,
+                playerVars: {
+                    'origin': window.location.origin, 
+                    'enablejsapi': 1,
+                    'autoplay': 1 
+                },
+                events: { 
+                    'onStateChange': onPlayerStateChange 
+                }
             });
         }
         showThumb(id);
@@ -109,7 +128,6 @@
 
     function onPlayerStateChange(event) {
         const btn = document.getElementById('pp-btn');
-        // Update nút dựa trên trạng thái (1: đang chơi, 2: đang tạm dừng)
         if (event.data === YT.PlayerState.PLAYING) {
             btn.innerText = "PAUSE";
             btn.style.color = "white";
@@ -118,7 +136,6 @@
             btn.style.color = "var(--accent)";
         }
 
-        // Loop logic
         if (event.data === YT.PlayerState.ENDED && document.getElementById('l-toggle').checked) {
             player.playVideo();
         }
@@ -152,17 +169,12 @@
 
     function showThumb(id) {
         const img = document.getElementById('thumb-img');
-        const btn = document.getElementById('dl-btn');
         img.src = `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`;
         img.onload = function() {
             if(this.naturalWidth <= 120) this.src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
-            img.style.display = 'block'; btn.style.display = 'block'; btn.href = this.src;
+            img.style.display = 'block';
         };
     }
 </script>
 </body>
 </html>
-
-
-
-
