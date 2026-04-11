@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Pro Max V2</title>
+    <title>Music Pro Max V3 - Master</title>
     <style>
         :root { 
             --primary: #ff4444; --bg: #050505; --card: rgba(22, 22, 22, 0.9); 
@@ -12,16 +12,15 @@
         body { 
             background: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
             color: var(--text); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0; padding: 20px; min-height: 100vh;
+            margin: 0; padding: 20px; min-height: 100vh; overflow-x: hidden;
         }
         
         .main-layout { display: flex; gap: 25px; width: 100%; max-width: 1300px; margin: 0 auto; flex-wrap: wrap; }
         
-        /* Glassmorphism Effect */
         .container, .right-col { 
-            background: var(--card); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.05); border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            background: var(--card); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
 
         .left-col { flex: 2; min-width: 350px; }
@@ -33,67 +32,73 @@
         }
 
         h1 { 
-            font-size: 22px; margin-bottom: 25px; text-align: center;
-            background: linear-gradient(90deg, var(--primary), #ff8888);
+            font-size: 24px; margin-bottom: 25px; text-align: center;
+            background: linear-gradient(90deg, var(--primary), #ff8888, var(--accent));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-weight: 800; letter-spacing: 1px;
+            font-weight: 800; text-shadow: 0 10px 20px rgba(255,68,68,0.2);
         }
 
-        /* Visualizer giả lập */
+        /* Tên bài đang phát */
+        #now-playing-title {
+            text-align: center; font-weight: bold; color: var(--accent);
+            margin-bottom: 15px; font-size: 16px; min-height: 24px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
         .visualizer {
             display: none; justify-content: center; align-items: flex-end;
-            height: 40px; gap: 3px; margin-bottom: 20px;
+            height: 40px; gap: 4px; margin-bottom: 20px;
         }
         .visualizer span {
-            width: 4px; background: var(--accent); border-radius: 2px;
+            width: 5px; background: var(--accent); border-radius: 10px;
             animation: bounce 0.5s ease infinite alternate;
         }
-        @keyframes bounce { 
-            from { height: 5px; } to { height: 35px; } 
-        }
+        @keyframes bounce { from { height: 5px; } to { height: 35px; } }
 
         .input-box { display: flex; gap: 10px; margin-bottom: 25px; }
         input { 
             flex: 1; padding: 14px; border-radius: 12px; border: 1px solid #333; 
-            background: rgba(0,0,0,0.3); color: #fff; outline: none; transition: 0.3s;
+            background: rgba(0,0,0,0.4); color: #fff; outline: none; transition: 0.3s;
         }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(255,68,68,0.2); }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(29,185,84,0.2); }
         
         button#main-run { 
             padding: 0 25px; background: var(--primary); color: white; 
             border: none; border-radius: 12px; font-weight: bold; cursor: pointer;
-            transition: 0.3s;
+            transition: 0.3s; box-shadow: 0 5px 15px rgba(255,68,68,0.3);
         }
-        button#main-run:hover { transform: scale(1.05); background: #ff5555; }
 
         #player-wrapper { 
-            width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 16px; 
-            overflow: hidden; margin-bottom: 25px; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 18px; 
+            overflow: hidden; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .music-mode-active { transform: scale(0.8); opacity: 0; height: 0; margin: 0; }
+        .music-mode-active { transform: translateY(-20px) scale(0.9); opacity: 0; pointer-events: none; height: 0; margin: 0; }
 
         .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .panel { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 16px; }
+        .panel { background: rgba(255,255,255,0.05); padding: 18px; border-radius: 18px; }
         .flex-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         
         .btn-action { 
-            background: #222; color: white; border: 1px solid #444; 
-            padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 11px;
-            text-transform: uppercase; transition: 0.2s;
+            background: #2a2a2a; color: white; border: 1px solid #444; 
+            padding: 8px 16px; border-radius: 10px; cursor: pointer; font-size: 12px;
+            transition: 0.2s;
         }
-        .btn-action:hover { background: var(--accent); border-color: var(--accent); }
+        .btn-action:hover { background: var(--primary); transform: translateY(-2px); }
 
-        #playlist-items { overflow-y: auto; flex-grow: 1; list-style: none; padding: 0; margin-top: 10px; }
+        #playlist-items { overflow-y: auto; flex-grow: 1; list-style: none; padding: 0; }
         #playlist-items li { 
-            padding: 12px; border-radius: 10px; margin-bottom: 8px; cursor: pointer; 
+            padding: 12px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; 
             background: rgba(255,255,255,0.03); display: flex; align-items: center; gap: 12px;
+            transition: 0.2s; border: 1px solid transparent; font-size: 13px;
         }
-        #playlist-items li:hover { background: rgba(255,255,255,0.08); }
-        #playlist-items li.active { background: rgba(29, 185, 84, 0.1); border: 1px solid var(--accent); color: var(--accent); }
+        #playlist-items li:hover { background: rgba(255,255,255,0.1); border-color: #444; }
+        #playlist-items li.active { background: rgba(29, 185, 84, 0.15); border-color: var(--accent); color: var(--accent); }
+        #playlist-items li .track-num { opacity: 0.5; font-size: 10px; min-width: 20px; }
 
-        #thumb-img { width: 20%; height:20%; border-radius: 16px; margin-top: 20px; display: none; }
-        
-        .timer-info { font-size: 12px; color: #888; text-align: right; }
+        .kbd-hint { font-size: 10px; color: #666; margin-top: 5px; text-align: center; }
+        #status-tag { position: absolute; top: 10px; right: 20px; font-size: 10px; color: var(--accent); }
+        .track-badge { background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -101,17 +106,21 @@
 <div class="main-layout">
     <div class="left-col">
         <div class="container">
-            <h1>MUSIC PRO MAX V2</h1>
+            <div id="status-tag">● READY</div>
+            <h1>MUSIC PRO MAX V3</h1>
             
             <div class="input-box">
-                <input type="text" id="v-url" value="https://www.youtube.com/watch?v=jfKfPfyJRdk" placeholder="Dán link Video/Playlist...">
+                <input type="text" id="v-url" value="" placeholder="Dán link Video hoặc Playlist...">
                 <button id="main-run" onclick="loadSource()">CHẠY</button>
             </div>
 
+            <div id="now-playing-title">Đang đợi phát nhạc...</div>
+
             <div class="visualizer" id="viz">
                 <span style="animation-duration: 0.4s"></span><span style="animation-duration: 0.7s"></span>
-                <span style="animation-duration: 0.5s"></span><span style="animation-duration: 0.6s"></span>
-                <span style="animation-duration: 0.4s"></span><span style="animation-duration: 0.8s"></span>
+                <span style="animation-duration: 0.5s"></span><span style="animation-duration: 0.9s"></span>
+                <span style="animation-duration: 0.3s"></span><span style="animation-duration: 0.6s"></span>
+                <span style="animation-duration: 0.8s"></span>
             </div>
 
             <div id="player-wrapper"><div id="player"></div></div>
@@ -119,47 +128,49 @@
             <div class="tools">
                 <div class="panel">
                     <div class="flex-row">
-                        <span>Speed:</span>
-                        <select id="v-speed" onchange="setVp()" style="background:#333; color:white; border:none; border-radius:4px;">
-                            <option value="1">1.0x</option>
+                        <span>Tốc độ:</span>
+                        <select id="v-speed" onchange="setVp()" style="background:#333; color:white; border:none; border-radius:6px; padding:4px;">
+                            <option value="1">1.0x (Normal)</option>
                             <option value="1.25">1.25x</option>
                             <option value="1.5">1.5x</option>
                             <option value="2">2.0x</option>
                         </select>
                     </div>
-                    <div class="flex-row">
-                        <button class="btn-action" onclick="player.previousVideo()">◀</button>
-                        <button id="pp-btn" class="btn-action" style="flex:1; margin:0 5px;" onclick="togglePlayPause()">PAUSE</button>
-                        <button class="btn-action" onclick="player.nextVideo()">▶</button>
+                    <div class="flex-row" style="gap:5px;">
+                        <button class="btn-action" title="Bài trước" onclick="player.previousVideo()">⏮</button>
+                        <button id="pp-btn" class="btn-action" style="flex:1;" onclick="togglePlayPause()">PAUSE</button>
+                        <button class="btn-action" title="Bài tiếp" onclick="player.nextVideo()">⏭</button>
                     </div>
                 </div>
                 <div class="panel">
                     <div class="flex-row">
-                        <span>Music Mode:</span>
+                        <span>Music Mode (F):</span>
                         <input type="checkbox" id="m-toggle" onchange="handleMusicMode()">
                     </div>
                     <div class="flex-row">
-                        <span>Hẹn giờ (phút):</span>
-                        <select id="s-timer" onchange="setTimer()" style="background:#333; color:white; border:none; border-radius:4px;">
+                        <span>Hẹn giờ nghỉ:</span>
+                        <select id="s-timer" onchange="setTimer()" style="background:#333; color:white; border:none; border-radius:6px; padding:4px;">
                             <option value="0">Tắt</option>
-                            <option value="30">30m</option>
-                            <option value="60">60m</option>
-                            <option value="120">120m</option>
+                            <option value="15">15 Phút</option>
+                            <option value="30">30 Phút</option>
                         </select>
                     </div>
-                    <div id="timer-display" class="timer-info"></div>
+                    <div id="timer-display" style="font-size:10px; text-align:right; color:var(--primary)"></div>
                 </div>
             </div>
-            <img id="thumb-img" alt="Thumbnail">
+            <div class="kbd-hint">Phím tắt: [Space]: Play/Pause | [F]: Music Mode | [M]: Mute</div>
         </div>
     </div>
 
     <div class="right-col">
-        <div style="font-weight:bold; color:var(--primary)">PLAYLIST / HISTORY</div>
+        <div style="font-weight:bold; color:var(--primary); margin-bottom: 15px; display:flex; justify-content:space-between; align-items:center;">
+            <span>DANH SÁCH PHÁT</span>
+            <span id="track-counter" class="track-badge">0/0</span>
+        </div>
         <ul id="playlist-items">
-            <li style="color:#666; justify-content:center;">Đang đợi link bài hát...</li>
+            <li style="color:#666; justify-content:center; border:none; background:none;">Hãy dán link để bắt đầu...</li>
         </ul>
-        <button class="btn-action" style="margin-top:10px; width:100%" onclick="clearHistory()">Xóa lịch sử</button>
+        <button class="btn-action" style="margin-top:15px; background:transparent; border:1px dashed #444" onclick="clearHistory()">Reset Player</button>
     </div>
 </div>
 
@@ -183,10 +194,10 @@
         if (!player) {
             player = new YT.Player('player', {
                 height: '100%', width: '100%',
-                playerVars: { 'autoplay': 1, 'enablejsapi': 1 },
+                playerVars: { 'autoplay': 1, 'enablejsapi': 1, 'rel': 0 },
                 events: { 
                     'onStateChange': onPlayerStateChange,
-                    'onReady': () => { processLoad(videoId, playlistId); }
+                    'onReady': () => { processLoad(videoId, playlistId); setupMediaSession(); }
                 }
             });
         } else {
@@ -196,25 +207,28 @@
     }
 
     function processLoad(vId, pId) {
-        if (pId) {
-            player.loadPlaylist({ list: pId, listType: 'playlist' });
-        } else {
-            player.loadVideoById(vId);
-        }
-        showThumb(vId);
+        if (pId) player.loadPlaylist({ list: pId, listType: 'playlist' });
+        else player.loadVideoById(vId);
     }
 
     function onPlayerStateChange(event) {
         const btn = document.getElementById('pp-btn');
         const viz = document.getElementById('viz');
+        const status = document.getElementById('status-tag');
         
         if (event.data === YT.PlayerState.PLAYING) {
             btn.innerText = "PAUSE";
-            viz.style.display = 'flex'; // Hiện sóng nhạc
-            updatePlaylistSelection();
+            viz.style.display = 'flex';
+            status.innerText = "● PLAYING";
+            status.style.color = "var(--accent)";
+            
+            updateNowPlaying(); // CẬP NHẬT TÊN BÀI HÁT
+            updateMediaMetadata();
         } else {
             btn.innerText = "PLAY";
-            viz.style.display = 'none'; // Ẩn sóng nhạc
+            viz.style.display = 'none';
+            status.innerText = "● PAUSED";
+            status.style.color = "var(--primary)";
         }
 
         if (event.data === YT.PlayerState.CUED || event.data === YT.PlayerState.PLAYING) {
@@ -223,62 +237,45 @@
         }
     }
 
-    // --- TÍNH NĂNG HẸN GIỜ ---
-    function setTimer() {
-        clearInterval(timerInterval);
-        let mins = parseInt(document.getElementById('s-timer').value);
-        if (mins <= 0) {
-            document.getElementById('timer-display').innerText = "";
-            return;
-        }
-        let endTime = Date.now() + mins * 60000;
+    // --- CẬP NHẬT TÊN BÀI HÁT VÀ VỊ TRÍ ---
+    function updateNowPlaying() {
+        const data = player.getVideoData();
+        const playlist = player.getPlaylist();
         
-        timerInterval = setInterval(() => {
-            let remain = Math.round((endTime - Date.now()) / 1000);
-            if (remain <= 0) {
-                player.pauseVideo();
-                clearInterval(timerInterval);
-                document.getElementById('timer-display').innerText = "Đã hết giờ!";
+        if (data && data.title) {
+            // 1. Hiển thị tên bài ở khu vực trung tâm
+            document.getElementById('now-playing-title').innerText = "▶ " + data.title;
+            
+            // 2. Cập nhật vị trí bài (Ví dụ: 2/10)
+            if (playlist) {
+                const currentIndex = player.getPlaylistIndex();
+                document.getElementById('track-counter').innerText = `${currentIndex + 1}/${playlist.length}`;
+                
+                // 3. Cập nhật tên thật vào list bên phải cho bài đang phát
+                const currentLi = document.querySelector(`#playlist-items li[data-id="${data.video_id}"]`);
+                if (currentLi) {
+                    currentLi.innerHTML = `<span class="track-num">${currentIndex + 1}</span> <strong>${data.title}</strong>`;
+                }
             } else {
-                document.getElementById('timer-display').innerText = `Tự tắt sau: ${Math.floor(remain/60)}p ${remain%60}s`;
+                document.getElementById('track-counter').innerText = "1/1";
             }
-        }, 1000);
-    }
-
-    // --- TÍNH NĂNG LỊCH SỬ ---
-    function saveToHistory(url) {
-        let history = JSON.parse(localStorage.getItem('music_history') || "[]");
-        if (!history.includes(url)) {
-            history.unshift(url);
-            if (history.length > 10) history.pop();
-            localStorage.setItem('music_history', JSON.stringify(history));
-            loadHistory();
+            updatePlaylistSelection();
         }
     }
 
-    function loadHistory() {
-        let history = JSON.parse(localStorage.getItem('music_history') || "[]");
-        if (history.length > 0 && !player) {
-            document.getElementById('v-url').value = history[0];
-        }
-    }
-
-    function clearHistory() {
-        localStorage.removeItem('music_history');
-        location.reload();
-    }
-
-    // --- CÁC HÀM CŨ ---
     function updatePlaylistUI(listIds) {
         const container = document.getElementById('playlist-items');
-        container.innerHTML = "";
-        listIds.forEach((id, index) => {
-            const li = document.createElement('li');
-            li.setAttribute('data-id', id);
-            li.innerHTML = `<span style="opacity:0.5">${index + 1}</span> <strong>Video ${id.substring(0,5)}...</strong>`;
-            li.onclick = () => player.playVideoAt(index);
-            container.appendChild(li);
-        });
+        // Chỉ vẽ lại UI nếu số lượng bài thay đổi
+        if (container.querySelectorAll('li').length !== listIds.length) {
+            container.innerHTML = "";
+            listIds.forEach((id, index) => {
+                const li = document.createElement('li');
+                li.setAttribute('data-id', id);
+                li.innerHTML = `<span class="track-num">${index + 1}</span> <span>Đang lấy tên bài...</span>`;
+                li.onclick = () => player.playVideoAt(index);
+                container.appendChild(li);
+            });
+        }
     }
 
     function updatePlaylistSelection() {
@@ -289,24 +286,55 @@
         });
     }
 
-    function togglePlayPause() {
-        player.getPlayerState() === 1 ? player.pauseVideo() : player.playVideo();
+    // --- PHÍM TẮT VÀ TIỆN ÍCH ---
+    document.addEventListener('keydown', (e) => {
+        if (document.activeElement.tagName === 'INPUT') return;
+        if (e.code === 'Space') { e.preventDefault(); togglePlayPause(); }
+        if (e.key.toLowerCase() === 'f') { document.getElementById('m-toggle').click(); }
+    });
+
+    function setupMediaSession() {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.setActionHandler('play', () => player.playVideo());
+            navigator.mediaSession.setActionHandler('pause', () => player.pauseVideo());
+            navigator.mediaSession.setActionHandler('previoustrack', () => player.previousVideo());
+            navigator.mediaSession.setActionHandler('nexttrack', () => player.nextVideo());
+        }
     }
 
-    function handleMusicMode() {
-        document.getElementById('player-wrapper').classList.toggle('music-mode-active', document.getElementById('m-toggle').checked);
+    function updateMediaMetadata() {
+        const data = player.getVideoData();
+        if ('mediaSession' in navigator && data) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: data.title, artist: data.author,
+                artwork: [{ src: `https://i.ytimg.com/vi/${data.video_id}/hqdefault.jpg`, sizes: '480x360', type: 'image/jpeg' }]
+            });
+        }
     }
 
-    function setVp() {
-        player.setPlaybackRate(parseFloat(document.getElementById('v-speed').value));
+    function togglePlayPause() { player.getPlayerState() === 1 ? player.pauseVideo() : player.playVideo(); }
+    function handleMusicMode() { document.getElementById('player-wrapper').classList.toggle('music-mode-active', document.getElementById('m-toggle').checked); }
+    function setVp() { player.setPlaybackRate(parseFloat(document.getElementById('v-speed').value)); }
+    function setTimer() {
+        clearInterval(timerInterval);
+        let mins = parseInt(document.getElementById('s-timer').value);
+        if (mins <= 0) return document.getElementById('timer-display').innerText = "";
+        let endTime = Date.now() + mins * 60000;
+        timerInterval = setInterval(() => {
+            let remain = Math.round((endTime - Date.now()) / 1000);
+            if (remain <= 0) { player.pauseVideo(); clearInterval(timerInterval); document.getElementById('timer-display').innerText = "OFF"; }
+            else document.getElementById('timer-display').innerText = `${Math.floor(remain/60)}:${(remain%60).toString().padStart(2,'0')}`;
+        }, 1000);
     }
-
-    function showThumb(id) {
-        if(!id) return;
-        const img = document.getElementById('thumb-img');
-        img.src = `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
-        img.style.display = 'block';
+    function saveToHistory(url) {
+        let h = JSON.parse(localStorage.getItem('music_history') || "[]");
+        if (!h.includes(url)) { h.unshift(url); if (h.length > 10) h.pop(); localStorage.setItem('music_history', JSON.stringify(h)); }
     }
+    function loadHistory() {
+        let h = JSON.parse(localStorage.getItem('music_history') || "[]");
+        if (h.length > 0 && !player) document.getElementById('v-url').value = h[0];
+    }
+    function clearHistory() { localStorage.removeItem('music_history'); location.reload(); }
 </script>
 </body>
 </html>
